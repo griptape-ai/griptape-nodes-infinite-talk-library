@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 from griptape_nodes.exe_types.node_types import AsyncResult
-from griptape_nodes.exe_types.param_types.parameter_audio import ParameterAudio
 from griptape_nodes.exe_types.param_types.parameter_video import ParameterVideo
 
 from infinite_talk.nodes.base_infinite_talk_node import BaseInfiniteTalkNode
@@ -38,14 +37,7 @@ class InfiniteTalkVideo2Video(BaseInfiniteTalkNode):
         self.category = "Video Generation"
         self.description = "Generate talking video from video and audio using InfiniteTalk (dubbing)"
 
-        # Add video input parameter
-        self._add_video_parameter()
-
-        # Add audio input parameter
-        self._add_audio_parameter()
-
-    def _add_video_parameter(self) -> None:
-        """Add video input parameter."""
+        # Add video input parameter (node-specific, after audio from base)
         self.add_parameter(
             ParameterVideo(
                 name="input_video",
@@ -55,16 +47,8 @@ class InfiniteTalkVideo2Video(BaseInfiniteTalkNode):
             )
         )
 
-    def _add_audio_parameter(self) -> None:
-        """Add audio input parameter."""
-        self.add_parameter(
-            ParameterAudio(
-                name="audio",
-                tooltip="New driving audio for lip sync",
-                clickable_file_browser=True,
-                allow_output=False,
-            )
-        )
+        # Add video output and status parameters (must be last)
+        self._add_final_parameters()
 
     def process(self) -> AsyncResult[None]:
         yield lambda: self._process()

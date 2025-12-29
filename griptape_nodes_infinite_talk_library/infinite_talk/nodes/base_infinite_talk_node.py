@@ -58,10 +58,34 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         self.wav2vec_model_param.add_input_parameters()
         self.infinitetalk_model_param.add_input_parameters()
 
-        # Add common parameters
+        # Add prompt and mode parameters
         self._add_common_parameters()
 
-        # Create status parameters for success/failure tracking
+        # Add audio input (common to both I2V and V2V)
+        self._add_audio_parameter()
+
+    def _add_audio_parameter(self) -> None:
+        """Add audio input parameter."""
+        from griptape_nodes.exe_types.param_types.parameter_audio import ParameterAudio
+
+        self.add_parameter(
+            ParameterAudio(
+                name="audio",
+                tooltip="Driving audio for lip sync and expressions",
+                clickable_file_browser=True,
+                allow_output=False,
+            )
+        )
+
+    def _add_final_parameters(self) -> None:
+        """Add video output and status parameters.
+
+        Child classes should call this after adding their specific input parameters.
+        """
+        # Add video output
+        self._add_video_output_parameter()
+
+        # Create status parameters for success/failure tracking (last)
         self._create_status_parameters(
             result_details_tooltip="Details about the video generation result or errors",
             result_details_placeholder="Generation status will appear here.",
@@ -91,7 +115,8 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
             )
         )
 
-        # Output parameter
+    def _add_video_output_parameter(self) -> None:
+        """Add video output parameter."""
         self.add_parameter(
             Parameter(
                 name="video",
