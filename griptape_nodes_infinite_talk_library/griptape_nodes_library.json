@@ -27,16 +27,7 @@
       }
     }
   },
-  "categories": [
-    {
-      "video/generation": {
-        "color": "border-blue-500",
-        "title": "Video Generation",
-        "description": "Video generation nodes using InfiniteTalk",
-        "icon": "Video"
-      }
-    }
-  ],
+  "categories": [],
   "nodes": [
     {
       "class_name": "InfiniteTalkImage2Video",
