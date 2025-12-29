@@ -17,8 +17,8 @@ from griptape_nodes.exe_types.param_types.parameter_string import ParameterStrin
 from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
 from griptape_nodes.traits.options import Options
 
-from griptape_nodes_infinite_talk_library.utils.file_utils import save_video_to_static
-from griptape_nodes_infinite_talk_library.utils.input_json_builder import build_input_json
+from infinite_talk.utils.file_utils import save_video_to_static
+from infinite_talk.utils.input_json_builder import build_input_json
 
 logger = logging.getLogger("griptape_nodes_infinite_talk_library")
 

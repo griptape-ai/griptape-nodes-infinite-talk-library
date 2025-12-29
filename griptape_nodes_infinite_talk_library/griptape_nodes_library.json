@@ -19,7 +19,7 @@
         "flash-attn==2.7.4.post1",
         "pygit2"
       ],
-      "pip_install_flags": ["--index-url", "https://download.pytorch.org/whl/cu121"]
+      "pip_install_flags": ["--extra-index-url", "https://download.pytorch.org/whl/cu121"]
     },
     "resources": {
       "required": {
@@ -40,20 +40,24 @@
   "nodes": [
     {
       "class_name": "InfiniteTalkImage2Video",
-      "file_path": "nodes/image_to_video_node.py",
+      "file_path": "infinite_talk/nodes/image_to_video_node.py",
       "metadata": {
-        "category": "video/generation",
+        "category": "video",
         "description": "Generate talking video from image and audio using InfiniteTalk",
-        "display_name": "InfiniteTalk Image to Video"
+        "display_name": "InfiniteTalk Image to Video",
+        "icon": "Sparkles",
+        "group": "create"
       }
     },
     {
       "class_name": "InfiniteTalkVideo2Video",
-      "file_path": "nodes/video_to_video_node.py",
+      "file_path": "infinite_talk/nodes/video_to_video_node.py",
       "metadata": {
-        "category": "video/generation",
+        "category": "video",
         "description": "Generate talking video from video and audio using InfiniteTalk (dubbing)",
-        "display_name": "InfiniteTalk Video to Video"
+        "display_name": "InfiniteTalk Video to Video",
+        "icon": "Sparkles",
+        "group": "create"
       }
     }
   ]

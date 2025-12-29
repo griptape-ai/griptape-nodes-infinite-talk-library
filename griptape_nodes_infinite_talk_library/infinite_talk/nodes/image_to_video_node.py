@@ -9,8 +9,8 @@ from griptape_nodes.exe_types.node_types import AsyncResult
 from griptape_nodes.exe_types.param_types.parameter_audio import ParameterAudio
 from griptape_nodes.exe_types.param_types.parameter_image import ParameterImage
 
-from griptape_nodes_infinite_talk_library.nodes.base_infinite_talk_node import BaseInfiniteTalkNode
-from griptape_nodes_infinite_talk_library.utils.file_utils import download_artifact_to_temp
+from infinite_talk.nodes.base_infinite_talk_node import BaseInfiniteTalkNode
+from infinite_talk.utils.file_utils import download_artifact_to_temp
 
 
 class InfiniteTalkImage2Video(BaseInfiniteTalkNode):
