@@ -8,7 +8,6 @@ import time
 from pathlib import Path
 from typing import Any, ClassVar
 
-import pygit2
 from griptape.artifacts import VideoUrlArtifact
 
 from griptape_nodes.exe_types.core_types import Parameter, ParameterMode
@@ -118,36 +117,12 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         """Get the library root directory."""
         return Path(__file__).parent.parent
 
-    def _update_submodules_recursive(self, repo_path: Path) -> None:
-        """Recursively update and initialize all submodules using pygit2."""
-        repo = pygit2.Repository(str(repo_path))
-        repo.submodules.update(init=True)
+    def _get_infinitetalk_dir(self) -> Path:
+        """Get the InfiniteTalk submodule directory.
 
-        # Recursively update nested submodules
-        for submodule in repo.submodules:
-            submodule_path = repo_path / submodule.path
-            if submodule_path.exists() and (submodule_path / ".git").exists():
-                self._update_submodules_recursive(submodule_path)
-
-    def _init_infinitetalk_submodule(self) -> Path:
-        """Initialize the InfiniteTalk git submodule."""
-        library_root = self._get_library_root()
-        infinitetalk_dir = library_root / "InfiniteTalk"
-
-        if infinitetalk_dir.exists() and any(infinitetalk_dir.iterdir()):
-            logger.info("InfiniteTalk submodule already initialized")
-            return infinitetalk_dir
-
-        logger.info("Initializing InfiniteTalk submodule...")
-        git_repo_root = library_root.parent
-        self._update_submodules_recursive(git_repo_root)
-
-        if not infinitetalk_dir.exists() or not any(infinitetalk_dir.iterdir()):
-            msg = f"Submodule initialization failed: {infinitetalk_dir} is empty or does not exist"
-            raise RuntimeError(msg)
-
-        logger.info("InfiniteTalk submodule initialized successfully")
-        return infinitetalk_dir
+        The submodule is initialized by the advanced library during library load.
+        """
+        return self._get_library_root() / "InfiniteTalk"
 
     def _get_library_env_python(self) -> Path:
         """Get path to library venv Python executable."""
@@ -198,13 +173,11 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
             self._handle_failure_exception(e)
             return None
 
-        # Initialize submodule if needed
-        try:
-            infinitetalk_dir = self._init_infinitetalk_submodule()
-        except RuntimeError as e:
-            error_msg = f"Failed to initialize InfiniteTalk submodule: {e}"
+        # Get InfiniteTalk directory (submodule initialized by advanced library)
+        infinitetalk_dir = self._get_infinitetalk_dir()
+        if not infinitetalk_dir.exists() or not any(infinitetalk_dir.iterdir()):
+            error_msg = f"InfiniteTalk submodule not initialized: {infinitetalk_dir}"
             self._set_status_results(was_successful=False, result_details=f"FAILURE: {error_msg}")
-            self._handle_failure_exception(e)
             return None
 
         script_path = infinitetalk_dir / "generate_infinitetalk.py"
