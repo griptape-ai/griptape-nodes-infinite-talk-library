@@ -1,0 +1,3 @@
+[submodule "griptape_nodes_infinite_talk_library/InfiniteTalk"]
+	path = griptape_nodes_infinite_talk_library/InfiniteTalk
+	url = https://github.com/MeiGen-AI/InfiniteTalk.git

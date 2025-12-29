@@ -1,0 +1,4 @@
+from griptape_nodes_infinite_talk_library.nodes.image_to_video_node import InfiniteTalkImage2Video
+from griptape_nodes_infinite_talk_library.nodes.video_to_video_node import InfiniteTalkVideo2Video
+
+__all__ = ["InfiniteTalkImage2Video", "InfiniteTalkVideo2Video"]
