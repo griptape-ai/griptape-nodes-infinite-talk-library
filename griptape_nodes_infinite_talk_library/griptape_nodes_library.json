@@ -10,14 +10,15 @@
     "tags": ["Griptape", "AI", "Video", "Audio", "InfiniteTalk"],
     "dependencies": {
       "pip_dependencies": [
-        "torch==2.4.1+cu121",
-        "torchvision==0.19.1+cu121",
-        "torchaudio==2.4.1+cu121",
+        "torch==2.8.0+cu128",
+        "torchvision==0.23.0+cu128",
+        "torchaudio==2.8.0+cu128",
         "huggingface-hub",
         "librosa",
-        "pygit2"
+        "pygit2",
+        "xformers"
       ],
-      "pip_install_flags": ["--extra-index-url", "https://download.pytorch.org/whl/cu121"]
+      "pip_install_flags": ["--extra-index-url", "https://download.pytorch.org/whl/cu128"]
     },
     "resources": {
       "required": {
