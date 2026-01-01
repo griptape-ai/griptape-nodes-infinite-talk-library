@@ -139,8 +139,8 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         return errors if errors else None
 
     def _get_library_root(self) -> Path:
-        """Get the library root directory."""
-        return Path(__file__).parent.parent
+        """Get the library root directory (griptape_nodes_infinite_talk_library)."""
+        return Path(__file__).parent.parent.parent
 
     def _get_infinitetalk_dir(self) -> Path:
         """Get the InfiniteTalk submodule directory.
@@ -190,22 +190,31 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         Returns:
             Path to the generated video, or None if generation failed
         """
+        logger.info("Starting _run_inference")
         try:
             library_env_python = self._get_library_env_python()
+            logger.info("  Python executable: %s", library_env_python)
         except FileNotFoundError as e:
             error_msg = f"Failed to find python executable: {e}"
+            logger.error(error_msg)
             self._set_status_results(was_successful=False, result_details=f"FAILURE: {error_msg}")
             self._handle_failure_exception(e)
             return None
 
         # Get InfiniteTalk directory (submodule initialized by advanced library)
         infinitetalk_dir = self._get_infinitetalk_dir()
+        logger.info("  InfiniteTalk dir: %s", infinitetalk_dir)
+        logger.info("  Exists: %s", infinitetalk_dir.exists())
+        if infinitetalk_dir.exists():
+            logger.info("  Has content: %s", any(infinitetalk_dir.iterdir()))
         if not infinitetalk_dir.exists() or not any(infinitetalk_dir.iterdir()):
             error_msg = f"InfiniteTalk submodule not initialized: {infinitetalk_dir}"
+            logger.error(error_msg)
             self._set_status_results(was_successful=False, result_details=f"FAILURE: {error_msg}")
             return None
 
-        script_path = infinitetalk_dir / "generate_infinitetalk.py"
+        # Use wrapper script that applies Python 3.11+ compatibility patches
+        script_path = Path(__file__).parent.parent / "scripts" / "run_infinitetalk.py"
 
         # Get model paths from HuggingFace parameters
         ckpt_repo, ckpt_revision = self.ckpt_model_param.get_repo_revision()
@@ -223,6 +232,9 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         # InfiniteTalk weights are in a subfolder
         infinitetalk_weights = infinitetalk_path / "single" / "infinitetalk.safetensors"
 
+        # Output file path (without extension - script adds .mp4)
+        output_file = output_dir / "output"
+
         command = [
             str(library_env_python),
             "-u",
@@ -233,7 +245,7 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
             "--input_json", str(input_json_path),
             "--size", size,
             "--mode", mode,
-            "--save_dir", str(output_dir),
+            "--save_file", str(output_file),
         ]
 
         logger.info("Running InfiniteTalk inference: %s", " ".join(command))
@@ -253,14 +265,18 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
                 self._set_status_results(was_successful=False, result_details=f"FAILURE: {error_msg}")
                 return None
 
-            # Find the output video file
+            # Find the output video file (we specified output.mp4 via --save_file)
+            expected_output = output_dir / "output.mp4"
+            if expected_output.exists():
+                return expected_output
+
+            # Fallback: look for any mp4 file
             output_videos = list(output_dir.glob("*.mp4"))
             if not output_videos:
                 error_msg = "No output video found after inference"
                 self._set_status_results(was_successful=False, result_details=f"FAILURE: {error_msg}")
                 return None
 
-            # Return the most recently modified video
             return max(output_videos, key=lambda p: p.stat().st_mtime)
 
         except Exception as e:
@@ -281,6 +297,10 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
 
         This is the main processing logic used by both Image2Video and Video2Video nodes.
         """
+        logger.info("Starting _prepare_and_run_inference")
+        logger.info("  cond_media_path: %s", cond_media_path)
+        logger.info("  audio_path: %s", audio_path)
+        logger.info("  mode: %s", mode)
         self._clear_execution_status()
 
         with tempfile.TemporaryDirectory() as temp_dir:
