@@ -223,11 +223,16 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
             # Step 2/3: Install requirements
             logger.info("Step 2/3: Installing InfiniteTalk requirements...")
             requirements_file = infinitetalk_dir / "requirements.txt"
+            constraints_file = self._get_library_root() / "constraints.txt"
 
             if not requirements_file.exists():
                 raise RuntimeError(f"requirements.txt not found: {requirements_file}")
 
-            self._run_pip_install(["--force-reinstall", "-r", str(requirements_file)])
+            # Use constraints file to prevent transformers 5.x (which removed MT5Tokenizer)
+            pip_args = ["--force-reinstall", "-r", str(requirements_file)]
+            if constraints_file.exists():
+                pip_args.extend(["-c", str(constraints_file)])
+            self._run_pip_install(pip_args)
 
             # Step 3/3: Install additional dependencies from README (not in requirements.txt)
             # Note: flash_attn is Linux-only, so we skip it on Windows
@@ -238,8 +243,7 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
                 "psutil",
                 "packaging",
                 "wheel",
-                "sentencepiece",
-                "transformers>=4.49.0,<5.0.0",
+                "sentencepiece"
             ]
             self._run_pip_install(["--force-reinstall", *additional_deps])
 
