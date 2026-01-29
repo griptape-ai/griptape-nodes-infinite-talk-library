@@ -239,8 +239,9 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
                 "packaging",
                 "wheel",
                 "sentencepiece",
+                "transformers>=4.49.0,<5.0.0",
             ]
-            self._run_pip_install(additional_deps)
+            self._run_pip_install(["--force-reinstall", *additional_deps])
 
             logger.info("InfiniteTalk installation completed successfully!")
             logger.info("=" * 80)
