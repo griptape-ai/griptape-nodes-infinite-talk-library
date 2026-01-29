@@ -227,7 +227,7 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
             if not requirements_file.exists():
                 raise RuntimeError(f"requirements.txt not found: {requirements_file}")
 
-            self._run_pip_install(["-r", str(requirements_file)])
+            self._run_pip_install(["--force-reinstall", "-r", str(requirements_file)])
 
             # Step 3/3: Install additional dependencies from README (not in requirements.txt)
             # Note: flash_attn is Linux-only, so we skip it on Windows
@@ -238,6 +238,7 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
                 "psutil",
                 "packaging",
                 "wheel",
+                "sentencepiece",
             ]
             self._run_pip_install(additional_deps)
 
