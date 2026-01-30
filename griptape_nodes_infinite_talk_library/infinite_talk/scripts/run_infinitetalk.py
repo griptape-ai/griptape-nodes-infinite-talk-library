@@ -10,6 +10,15 @@ if not hasattr(inspect, "ArgSpec"):
 if not hasattr(inspect, "getargspec"):
     inspect.getargspec = inspect.getfullargspec
 
+# Force eager attention for wav2vec2 - SDPA doesn't support output_attentions=True
+# which InfiniteTalk's wav2vec2.py requires
+from transformers import Wav2Vec2Config
+_original_wav2vec2_init = Wav2Vec2Config.__init__
+def _patched_wav2vec2_init(self, *args, **kwargs):
+    kwargs.setdefault("attn_implementation", "eager")
+    _original_wav2vec2_init(self, *args, **kwargs)
+Wav2Vec2Config.__init__ = _patched_wav2vec2_init
+
 # Add InfiniteTalk directory to path
 from pathlib import Path
 
