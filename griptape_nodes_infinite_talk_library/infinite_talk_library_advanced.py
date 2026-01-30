@@ -243,7 +243,8 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
                 "psutil",
                 "packaging",
                 "wheel",
-                "sentencepiece"
+                "sentencepiece",
+                "einops",
             ]
             self._run_pip_install(["--force-reinstall", *additional_deps])
 
