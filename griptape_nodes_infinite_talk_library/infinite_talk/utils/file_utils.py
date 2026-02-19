@@ -4,14 +4,12 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import httpx
 from griptape.artifacts import AudioUrlArtifact, ImageUrlArtifact, VideoUrlArtifact
+from griptape_nodes.files.file import File, FileLoadError
 
 from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
 
 logger = logging.getLogger("griptape_nodes_infinite_talk_library")
-
-DEFAULT_TIMEOUT = 60
 
 
 def save_video_to_static(video_path: Path, filename: str) -> VideoUrlArtifact:
@@ -37,9 +35,7 @@ def _is_local_path(url: str) -> bool:
 
 def _download_from_url(url: str) -> bytes:
     """Download bytes from a URL."""
-    response = httpx.get(url, timeout=DEFAULT_TIMEOUT)
-    response.raise_for_status()
-    return response.content
+    return File(url).read_bytes()
 
 
 def download_artifact_to_temp(
