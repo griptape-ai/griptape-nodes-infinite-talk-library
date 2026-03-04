@@ -67,13 +67,12 @@ def download_artifact_to_temp(
 
     # Handle local paths
     if _is_local_path(url):
-        local_path = Path(url)
-        if local_path.exists():
-            # Copy file to temp directory
-            output_path.write_bytes(local_path.read_bytes())
+        try:
+            output_path.write_bytes(File(url).read_bytes())
             return output_path
-        msg = f"Local file not found: {url}"
-        raise FileNotFoundError(msg)
+        except FileLoadError as e:
+            msg = f"Local file not found: {url}"
+            raise FileNotFoundError(msg) from e
 
     # Download from URL
     logger.info("Downloading %s to %s", url, output_path)
