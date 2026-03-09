@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from griptape.artifacts import AudioUrlArtifact, ImageUrlArtifact, VideoUrlArtifact
-from griptape_nodes.files.file import File, FileLoadError
+from griptape_nodes.files.file import File
 
 from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
 
@@ -26,16 +26,6 @@ def save_video_to_static(video_path: Path, filename: str) -> VideoUrlArtifact:
     static_files_manager = GriptapeNodes.StaticFilesManager()
     saved_url = static_files_manager.save_static_file(video_bytes, filename)
     return VideoUrlArtifact(value=saved_url, name=filename)
-
-
-def _is_local_path(url: str) -> bool:
-    """Check if URL is a local file path."""
-    return not url.startswith(("http://", "https://"))
-
-
-def _download_from_url(url: str) -> bytes:
-    """Download bytes from a URL."""
-    return File(url).read_bytes()
 
 
 def download_artifact_to_temp(
@@ -65,17 +55,5 @@ def download_artifact_to_temp(
         msg = f"Unsupported artifact type: {type(artifact)}"
         raise TypeError(msg)
 
-    # Handle local paths
-    if _is_local_path(url):
-        try:
-            output_path.write_bytes(File(url).read_bytes())
-            return output_path
-        except FileLoadError as e:
-            msg = f"Local file not found: {url}"
-            raise FileNotFoundError(msg) from e
-
-    # Download from URL
-    logger.info("Downloading %s to %s", url, output_path)
-    content = _download_from_url(url)
-    output_path.write_bytes(content)
+    output_path.write_bytes(File(url).read_bytes())
     return output_path
