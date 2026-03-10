@@ -4,14 +4,12 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import httpx
 from griptape.artifacts import AudioUrlArtifact, ImageUrlArtifact, VideoUrlArtifact
+from griptape_nodes.files.file import File
 
 from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
 
 logger = logging.getLogger("griptape_nodes_infinite_talk_library")
-
-DEFAULT_TIMEOUT = 60
 
 
 def save_video_to_static(video_path: Path, filename: str) -> VideoUrlArtifact:
@@ -28,18 +26,6 @@ def save_video_to_static(video_path: Path, filename: str) -> VideoUrlArtifact:
     static_files_manager = GriptapeNodes.StaticFilesManager()
     saved_url = static_files_manager.save_static_file(video_bytes, filename)
     return VideoUrlArtifact(value=saved_url, name=filename)
-
-
-def _is_local_path(url: str) -> bool:
-    """Check if URL is a local file path."""
-    return not url.startswith(("http://", "https://"))
-
-
-def _download_from_url(url: str) -> bytes:
-    """Download bytes from a URL."""
-    response = httpx.get(url, timeout=DEFAULT_TIMEOUT)
-    response.raise_for_status()
-    return response.content
 
 
 def download_artifact_to_temp(
@@ -69,18 +55,5 @@ def download_artifact_to_temp(
         msg = f"Unsupported artifact type: {type(artifact)}"
         raise TypeError(msg)
 
-    # Handle local paths
-    if _is_local_path(url):
-        local_path = Path(url)
-        if local_path.exists():
-            # Copy file to temp directory
-            output_path.write_bytes(local_path.read_bytes())
-            return output_path
-        msg = f"Local file not found: {url}"
-        raise FileNotFoundError(msg)
-
-    # Download from URL
-    logger.info("Downloading %s to %s", url, output_path)
-    content = _download_from_url(url)
-    output_path.write_bytes(content)
+    output_path.write_bytes(File(url).read_bytes())
     return output_path

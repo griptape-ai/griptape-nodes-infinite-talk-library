@@ -6,7 +6,7 @@
     "author": "Griptape, Inc.",
     "description": "Audio-driven video generation with InfiniteTalk. Generate talking videos from images or dub existing videos with new audio.",
     "library_version": "0.1.0",
-    "engine_version": "0.65.2",
+    "engine_version": "0.75.0",
     "tags": ["Griptape", "AI", "Video", "Audio", "InfiniteTalk"],
     "dependencies": {
       "pip_dependencies": [
