@@ -6,7 +6,6 @@ from typing import Any
 
 from griptape_nodes.exe_types.node_types import AsyncResult
 from griptape_nodes.exe_types.param_types.parameter_video import ParameterVideo
-
 from infinite_talk.nodes.base_infinite_talk_node import BaseInfiniteTalkNode
 from infinite_talk.utils.file_utils import download_artifact_to_temp
 
