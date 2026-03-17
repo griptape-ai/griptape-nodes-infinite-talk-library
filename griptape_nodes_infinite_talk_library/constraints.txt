@@ -1,3 +1,8 @@
 # Constraints file for InfiniteTalk dependencies
 # transformers 5.x removed MT5Tokenizer which breaks xfuser/diffusers imports
 transformers>=4.49.0,<5.0.0
+
+# Pin torch to 2.8.0 CUDA builds to match griptape_nodes_library.json
+torch==2.8.0+cu128
+torchvision==0.23.0+cu128
+torchaudio==2.8.0+cu128

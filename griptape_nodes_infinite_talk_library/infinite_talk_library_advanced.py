@@ -38,7 +38,7 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
             return
 
         logger.info("InfiniteTalk dependencies not found, beginning installation...")
-        self._install_infinitetalk_dependencies()
+        self._install_infinitetalk_dependencies(library_data)
 
     def after_library_nodes_loaded(self, library_data: LibrarySchema, library: Library) -> None:
         """Log completion of library loading and configure PyTorch."""
@@ -206,7 +206,7 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
         logger.info("InfiniteTalk submodule initialized successfully")
         return infinitetalk_dir
 
-    def _install_infinitetalk_dependencies(self) -> None:
+    def _install_infinitetalk_dependencies(self, library_data: LibrarySchema) -> None:
         """Install InfiniteTalk and required dependencies."""
         try:
             logger.info("=" * 80)
@@ -215,6 +215,12 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
 
             # Ensure pip is available
             self._ensure_pip_installed()
+
+            # Extract pip install flags from library metadata (e.g., --extra-index-url for CUDA torch)
+            pip_install_flags = []
+            if library_data.metadata and library_data.metadata.dependencies:
+                pip_install_flags = library_data.metadata.dependencies.pip_install_flags or []
+                logger.debug("Using pip install flags: %s", pip_install_flags)
 
             # Step 1/2: Initialize InfiniteTalk submodule
             logger.info("Step 1/2: Initializing InfiniteTalk submodule...")
@@ -229,7 +235,8 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
                 raise RuntimeError(f"requirements.txt not found: {requirements_file}")
 
             # Use constraints file to prevent transformers 5.x (which removed MT5Tokenizer)
-            pip_args = ["--force-reinstall", "-r", str(requirements_file)]
+            # Include pip_install_flags to ensure CUDA torch versions are available
+            pip_args = [*pip_install_flags, "-r", str(requirements_file)]
             if constraints_file.exists():
                 pip_args.extend(["-c", str(constraints_file)])
             self._run_pip_install(pip_args)
@@ -246,7 +253,11 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
                 "sentencepiece",
                 "einops",
             ]
-            self._run_pip_install(["--force-reinstall", *additional_deps])
+            # Include pip_install_flags and constraints to prevent torch upgrade during --force-reinstall
+            pip_args = [*pip_install_flags, "--force-reinstall", *additional_deps]
+            if constraints_file.exists():
+                pip_args.extend(["-c", str(constraints_file)])
+            self._run_pip_install(pip_args)
 
             logger.info("InfiniteTalk installation completed successfully!")
             logger.info("=" * 80)
