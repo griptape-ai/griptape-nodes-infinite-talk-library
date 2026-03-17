@@ -7,7 +7,7 @@ from typing import Any
 from griptape.artifacts import AudioUrlArtifact, ImageUrlArtifact, VideoUrlArtifact
 from griptape_nodes.files.file import File
 
-from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
+from griptape_nodes.files.project_file import ProjectFileDestination
 
 logger = logging.getLogger("griptape_nodes_infinite_talk_library")
 
@@ -23,9 +23,9 @@ def save_video_to_static(video_path: Path, filename: str) -> VideoUrlArtifact:
         VideoUrlArtifact pointing to the saved video
     """
     video_bytes = video_path.read_bytes()
-    static_files_manager = GriptapeNodes.StaticFilesManager()
-    saved_url = static_files_manager.save_static_file(video_bytes, filename)
-    return VideoUrlArtifact(value=saved_url, name=filename)
+    dest = ProjectFileDestination(filename=filename, situation="save_node_output")
+    saved = dest.write_bytes(video_bytes)
+    return VideoUrlArtifact(value=saved.location, name=filename)
 
 
 def download_artifact_to_temp(
