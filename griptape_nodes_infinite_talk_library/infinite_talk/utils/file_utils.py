@@ -6,7 +6,6 @@ from typing import Any
 
 from griptape.artifacts import AudioUrlArtifact, ImageUrlArtifact, VideoUrlArtifact
 from griptape_nodes.files.file import File
-
 from griptape_nodes.files.project_file import ProjectFileDestination
 
 logger = logging.getLogger("griptape_nodes_infinite_talk_library")

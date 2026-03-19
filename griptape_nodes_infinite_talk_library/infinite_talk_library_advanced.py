@@ -8,7 +8,6 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import pygit2
-
 from griptape_nodes.node_library.advanced_node_library import AdvancedNodeLibrary
 from griptape_nodes.node_library.library_registry import Library, LibrarySchema
 from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
@@ -107,10 +106,11 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
             # Log torch for debugging
             try:
                 import torch
+
                 logger.debug(
                     "Found torch %s, CUDA: %s",
                     torch.__version__,
-                    torch.version.cuda if torch.cuda.is_available() else "N/A"
+                    torch.version.cuda if torch.cuda.is_available() else "N/A",
                 )
             except ImportError:
                 logger.debug("torch not found")
@@ -199,9 +199,7 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
         self._update_submodules_recursive(git_repo_root)
 
         if not infinitetalk_dir.exists() or not any(infinitetalk_dir.iterdir()):
-            raise RuntimeError(
-                f"Submodule initialization failed: {infinitetalk_dir} is empty or does not exist"
-            )
+            raise RuntimeError(f"Submodule initialization failed: {infinitetalk_dir} is empty or does not exist")
 
         logger.info("InfiniteTalk submodule initialized successfully")
         return infinitetalk_dir

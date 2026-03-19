@@ -8,15 +8,12 @@ import time
 from pathlib import Path
 from typing import Any, ClassVar
 
-from griptape.artifacts import VideoUrlArtifact
-
 from griptape_nodes.exe_types.core_types import Parameter, ParameterMode
-from griptape_nodes.exe_types.node_types import AsyncResult, SuccessFailureNode
+from griptape_nodes.exe_types.node_types import SuccessFailureNode
 from griptape_nodes.exe_types.param_components.huggingface.huggingface_repo_parameter import HuggingFaceRepoParameter
 from griptape_nodes.exe_types.param_types.parameter_string import ParameterString
 from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
 from griptape_nodes.traits.options import Options
-
 from infinite_talk.utils.file_utils import save_video_to_static
 from infinite_talk.utils.input_json_builder import build_input_json
 
@@ -43,9 +40,7 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         super().__init__(**kwargs)
 
         # Create HuggingFace model parameters
-        self.ckpt_model_param = HuggingFaceRepoParameter(
-            self, repo_ids=self.CKPT_REPOS, parameter_name="base_model"
-        )
+        self.ckpt_model_param = HuggingFaceRepoParameter(self, repo_ids=self.CKPT_REPOS, parameter_name="base_model")
         self.wav2vec_model_param = HuggingFaceRepoParameter(
             self, repo_ids=self.WAV2VEC_REPOS, parameter_name="audio_encoder"
         )
@@ -239,13 +234,20 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
             str(library_env_python),
             "-u",
             str(script_path),
-            "--ckpt_dir", str(ckpt_path),
-            "--wav2vec_dir", str(wav2vec_path),
-            "--infinitetalk_dir", str(infinitetalk_weights),
-            "--input_json", str(input_json_path),
-            "--size", size,
-            "--mode", mode,
-            "--save_file", str(output_file),
+            "--ckpt_dir",
+            str(ckpt_path),
+            "--wav2vec_dir",
+            str(wav2vec_path),
+            "--infinitetalk_dir",
+            str(infinitetalk_weights),
+            "--input_json",
+            str(input_json_path),
+            "--size",
+            size,
+            "--mode",
+            mode,
+            "--save_file",
+            str(output_file),
         ]
 
         logger.info("Running InfiniteTalk inference: %s", " ".join(command))
@@ -323,9 +325,7 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
-                output_video_path = loop.run_until_complete(
-                    self._run_inference(input_json_path, output_dir, mode)
-                )
+                output_video_path = loop.run_until_complete(self._run_inference(input_json_path, output_dir, mode))
             finally:
                 loop.close()
 
