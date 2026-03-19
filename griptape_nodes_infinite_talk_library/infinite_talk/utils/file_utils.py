@@ -22,7 +22,7 @@ def save_video_to_static(video_path: Path, filename: str) -> VideoUrlArtifact:
         VideoUrlArtifact pointing to the saved video
     """
     video_bytes = video_path.read_bytes()
-    dest = ProjectFileDestination(filename=filename, situation="save_node_output")
+    dest = ProjectFileDestination.from_situation(filename=filename, situation="save_node_output")
     saved = dest.write_bytes(video_bytes)
     return VideoUrlArtifact(value=saved.location, name=filename)
 
