@@ -8,6 +8,7 @@ from pathlib import Path
 
 from griptape_nodes.node_library.advanced_node_library import AdvancedNodeLibrary
 from griptape_nodes.node_library.library_registry import Library, LibrarySchema
+from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("griptape_nodes_infinite_talk_library")
@@ -24,6 +25,10 @@ class InfiniteTalkLibraryAdvanced(AdvancedNodeLibrary):
     def before_library_nodes_loaded(self, library_data: LibrarySchema, library: Library) -> None:
         """Initialize the InfiniteTalk git submodule."""
         logger.info("Loading InfiniteTalk library: %s", library_data.name)
+        # This hook runs on both the orchestrator and the worker. The submodule populates the
+        # execution environment, which only the worker imports, so the orchestrator skips it.
+        if not GriptapeNodes.LibraryManager().is_worker:
+            return
         self._init_infinitetalk_submodule()
 
     def after_library_nodes_loaded(self, library_data: LibrarySchema, library: Library) -> None:
