@@ -6,7 +6,7 @@
         "author": "Griptape, Inc.",
         "description": "Audio-driven video generation with InfiniteTalk. Generate talking videos from images or dub existing videos with new audio.",
         "library_version": "0.2.0",
-        "engine_version": "0.77.5",
+        "engine_version": "0.102.0",
         "tags": [
             "Griptape",
             "AI",
@@ -26,7 +26,7 @@
                 "einops",
                 "ftfy",
                 "gradio>=5.0.0",
-                "huggingface-hub",
+                "huggingface-hub<2",
                 "imageio",
                 "imageio-ffmpeg",
                 "librosa",
@@ -53,8 +53,8 @@
                 "xfuser>=0.4.1"
             ],
             "pip_install_flags": [
-                "--extra-index-url",
-                "https://download.pytorch.org/whl/cu128"
+                "--preview",
+                "--torch-backend=auto"
             ]
         },
         "resources": {
