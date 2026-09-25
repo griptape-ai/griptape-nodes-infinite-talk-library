@@ -171,9 +171,8 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
             Path to the generated video, or None if generation failed
         """
         logger.info("Starting _run_inference")
-        # This process's interpreter, not the library's .venv: the execution environment holding
-        # the heavy packages arrives as PYTHONPATH and the child inherits it, whereas the
-        # edit-time venv a resolved path would find deliberately has none of them.
+        # This process's interpreter: its PYTHONPATH carries the execution environment holding the
+        # heavy packages, and the child inherits it.
         logger.info("  Python executable: %s", sys.executable)
 
         # Get InfiniteTalk directory (submodule initialized by advanced library)
