@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -12,7 +13,6 @@ from griptape_nodes.exe_types.core_types import Parameter, ParameterMode
 from griptape_nodes.exe_types.node_types import SuccessFailureNode
 from griptape_nodes.exe_types.param_components.huggingface.huggingface_repo_parameter import HuggingFaceRepoParameter
 from griptape_nodes.exe_types.param_types.parameter_string import ParameterString
-from griptape_nodes.retained_mode.griptape_nodes import GriptapeNodes
 from griptape_nodes.traits.options import Options
 from infinite_talk.utils.file_utils import save_video_to_static
 from infinite_talk.utils.input_json_builder import build_input_json
@@ -144,21 +144,6 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         """
         return self._get_library_root() / "InfiniteTalk"
 
-    def _get_library_env_python(self) -> Path:
-        """Get path to library venv Python executable."""
-        venv_path = Path(__file__).parent.parent.parent / ".venv"
-        if GriptapeNodes.OSManager().is_windows():
-            venv_python_path = venv_path / "Scripts" / "python.exe"
-        else:
-            venv_python_path = venv_path / "bin" / "python"
-
-        if venv_python_path.exists():
-            logger.debug("Python executable found at: %s", venv_python_path)
-            return venv_python_path
-
-        msg = f"Python executable not found in expected location: {venv_python_path}"
-        raise FileNotFoundError(msg)
-
     def _get_model_path(self, repo_id: str, revision: str | None = None) -> Path:
         """Get HuggingFace cache path for model."""
         from huggingface_hub import snapshot_download
@@ -186,15 +171,9 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
             Path to the generated video, or None if generation failed
         """
         logger.info("Starting _run_inference")
-        try:
-            library_env_python = self._get_library_env_python()
-            logger.info("  Python executable: %s", library_env_python)
-        except FileNotFoundError as e:
-            error_msg = f"Failed to find python executable: {e}"
-            logger.error(error_msg)
-            self._set_status_results(was_successful=False, result_details=f"FAILURE: {error_msg}")
-            self._handle_failure_exception(e)
-            return None
+        # This process's interpreter: its PYTHONPATH carries the execution environment holding the
+        # heavy packages, and the child inherits it.
+        logger.info("  Python executable: %s", sys.executable)
 
         # Get InfiniteTalk directory (submodule initialized by advanced library)
         infinitetalk_dir = self._get_infinitetalk_dir()
@@ -231,7 +210,7 @@ class BaseInfiniteTalkNode(SuccessFailureNode):
         output_file = output_dir / "output"
 
         command = [
-            str(library_env_python),
+            sys.executable,
             "-u",
             str(script_path),
             "--ckpt_dir",
